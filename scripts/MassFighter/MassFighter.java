@@ -72,6 +72,7 @@ public class MassFighter extends TaskScript implements PaintListener, MouseListe
             showAndWaitGUI();
             methods = new Methods();
 
+            add(new SafetyTeleport());
             // RS3 Specific Tasks
             if (Environment.isRS3()) {
                 add(new LootMenu());
