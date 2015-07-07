@@ -29,6 +29,8 @@ import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.text.NumberFormat;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -55,7 +57,7 @@ public class MassFighter extends TaskScript implements PaintListener, MouseListe
     private final int rangedLevel = Skill.RANGED.getBaseLevel();
     private final int mageLevel = Skill.MAGIC.getBaseLevel();
     private final int prayerLevel = Skill.PRAYER.getBaseLevel();
-    
+
 
     public void onStart(String... args) {
 
@@ -67,26 +69,33 @@ public class MassFighter extends TaskScript implements PaintListener, MouseListe
             showAndWaitGUI();
             methods = new Methods();
 
-            // rs3TaskParent.add(new SummonFamiliar());
+            // Top priority task, not shuffled
+            add(new SafetyTeleport());
+
+            // Low-priority tasks to be shuffled
+            List<Task> tasks = new ArrayList<>();
             if (Environment.isRS3()) {
                 new LoopingThread(new Abilities(), 1000, 1200).start();
-                add(new LootMenu());
-                add(new MagicNotepaper());
-                add(new Soulsplit());
+                tasks.add(new LootMenu());
+                tasks.add(new MagicNotepaper());
+                tasks.add(new Soulsplit());
             } else {
-                add(new DismissDialog());
+                tasks.add(new DismissDialog());
             }
-            add(new SafetyTeleport());
-            add(new Alchemy());
-            add(new Ammunition());
-            add(new Attack());
-            add(new Boost());
-            add(new BuryBones());
-            add(new Heal());
-            add(new Loot());
-            add(new PrayerPoints());
-            add(new QuickPray());
-            add(new ReturnToArea());
+            tasks.add(new Alchemy());
+            tasks.add(new Ammunition());
+            tasks.add(new Attack());
+            tasks.add(new Boost());
+            tasks.add(new BuryBones());
+            tasks.add(new Heal());
+            tasks.add(new Loot());
+            tasks.add(new PrayerPoints());
+            tasks.add(new QuickPray());
+            tasks.add(new ReturnToArea());
+
+            Collections.shuffle(tasks);
+            add(tasks.toArray(new Task[(tasks.size())]));
+
 
 
             startExpNoHp = Skill.STRENGTH.getExperience() + Skill.RANGED.getExperience() + Skill.MAGIC.getExperience() + Skill.ATTACK.getExperience() + Skill.DEFENCE.getExperience()
