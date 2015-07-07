@@ -45,7 +45,8 @@ public class Loot extends Task {
 
     @Override
     public boolean validate() {
-        return !getLoot().results().isEmpty() && (Settings.lootInCombat || !Methods.isInCombat());
+        return Methods.arrayIsValid(Settings.lootNames) && !getLoot().results().isEmpty()
+                && (Settings.lootInCombat || !Methods.isInCombat());
     }
 
     @Override

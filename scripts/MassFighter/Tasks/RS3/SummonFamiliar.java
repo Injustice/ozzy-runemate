@@ -19,7 +19,8 @@ public class SummonFamiliar extends Task {
     @Override
     public boolean validate() {
         final Player player = Players.getLocal();
-        return hasPouch() && player.getFamiliar() == null ||  !player.getFamiliar().getInfo().equals(Settings.chosenFamiliar);
+        return Settings.useSummoning && Settings.chosenFamiliar != null && hasPouch()
+                && player.getFamiliar() == null ||  !player.getFamiliar().getInfo().equals(Settings.chosenFamiliar);
     }
 
     @Override

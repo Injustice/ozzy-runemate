@@ -56,7 +56,7 @@ public class Alchemy extends Task {
 
 
     public boolean validate() {
-        return !getAlchableItems().results().isEmpty() && hasAlchReqs();
+        return Methods.arrayIsValid(Settings.alchLoot) && !getAlchableItems().results().isEmpty() && hasAlchReqs();
     }
 
     @Override

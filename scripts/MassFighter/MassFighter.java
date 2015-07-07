@@ -99,53 +99,6 @@ public class MassFighter extends TaskScript implements PaintListener, MouseListe
             sharedParent.add(new QuickPray());
             sharedParent.add(new ReturnToArea());
 
-            /*
-
-            add(new SafetyTeleport());
-            // RS3 Specific Tasks
-            if (Environment.isRS3()) {
-                add(new LootMenu());
-                if (Settings.useSoulsplit) {
-                    add(new Soulsplit());
-                }
-                if (Settings.useAbilities) {
-                    new LoopingThread(new Abilities(), 1000, 1200).start();
-                }
-                if (Methods.arrayIsValid(Settings.notepaperLoot)) {
-                    add(new MagicNotepaper());
-                }
-
-            }
-            if (Settings.quickPray || Settings.useSoulsplit) {
-                add(new PrayerPoints());
-            }
-            if (Settings.quickPray) {
-                add(new QuickPray());
-            }
-            if (Methods.arrayIsValid(Settings.foodNames)) {
-                add(new Heal());
-            }
-            if (Methods.arrayIsValid(Settings.alchLoot)) {
-                add(new Alchemy());
-            }
-            if (Methods.arrayIsValid(Settings.lootNames)) {
-                add(new Loot());
-            }
-            if (Settings.equipAmmunition) {
-                add(new Ammunition());
-            }
-            if (Settings.buryBones) {
-                add(new BuryBones());
-            }
-            if (Methods.arrayIsValid(Settings.selectedPotions)) {
-                add(new Boost());
-            }
-            add(new ReturnToArea());
-            add(new DismissDialog());
-            add(new Attack());
-            */
-
-
 
             startExpNoHp = Skill.STRENGTH.getExperience() + Skill.RANGED.getExperience() + Skill.MAGIC.getExperience() + Skill.ATTACK.getExperience() + Skill.DEFENCE.getExperience()
                     + Skill.PRAYER.getExperience();
