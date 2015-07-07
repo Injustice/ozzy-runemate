@@ -29,8 +29,8 @@ public class SafetyTeleport extends Task {
             SpriteItem teleportTab = validTeleportTabs.random();
             if (teleportTab != null && teleportTab.click()) {
                 Execution.delayUntil(() -> !teleportTab.isValid(), 2500, 4000);
-                Methods.logout();
             }
         }
+        Methods.logout();
     }
 }

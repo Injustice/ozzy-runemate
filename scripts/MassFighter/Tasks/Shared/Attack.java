@@ -83,8 +83,9 @@ public class Attack extends Task {
 
 
     public boolean validate() {
-        return Health.getCurrent() > Settings.criticalHitpoints && getValidLoot().results().isEmpty()
-                && !Methods.isInCombat() || Settings.tagMode && getSuitableNpcs().results().size() < Settings.tagSelection;
+        return Health.getCurrent() > Settings.criticalHitpoints
+                && (!Methods.isInCombat() || Settings.tagMode && getAttackingNpcs().results().size() < Settings.tagSelection)
+                && getValidLoot().results().isEmpty();
     }
 
     @Override
