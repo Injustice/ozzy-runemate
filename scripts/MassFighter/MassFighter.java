@@ -12,7 +12,6 @@ import com.runemate.game.api.hybrid.util.calculations.CommonMath;
 import com.runemate.game.api.osrs.net.Zybez;
 import com.runemate.game.api.rs3.net.GrandExchange;
 import com.runemate.game.api.script.Execution;
-import com.runemate.game.api.script.framework.core.LoopingThread;
 import com.runemate.game.api.script.framework.listeners.InventoryListener;
 import com.runemate.game.api.script.framework.listeners.events.ItemEvent;
 import com.runemate.game.api.script.framework.task.Task;
@@ -32,7 +31,6 @@ import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.text.NumberFormat;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -43,7 +41,6 @@ public class MassFighter extends TaskScript implements PaintListener, MouseListe
     public static String status;
     public static Boolean setupRunning;
     public static final boolean debug = true;
-    private static List<String> runningTaskNames;
 
     private final StopWatch runningTime = new StopWatch();
     private final NumberFormat numberFormat = NumberFormat.getNumberInstance();
@@ -61,10 +58,17 @@ public class MassFighter extends TaskScript implements PaintListener, MouseListe
     private final int mageLevel = Skill.MAGIC.getBaseLevel();
     private final int prayerLevel = Skill.PRAYER.getBaseLevel();
 
-    public static void getSimpleTasks(List<Task> tasks) {
-        List<String> taskNames = new ArrayList<>();
-        tasks.stream().filter(task -> task != null).forEach(task -> taskNames.add(task.getClass().getSimpleName()));
-        runningTaskNames = taskNames;
+    public static void outputSimpleTasks(List<Task> tasks) {
+        for (Task task : tasks) {
+            System.out.println("Global Parent Task: " + task.getClass().getSimpleName());
+            for (Task subTask : task.getChildren()) {
+                System.out.println("Child: " + subTask.getClass().getSimpleName());
+                for (Task childTask : subTask.getChildren()) {
+                    System.out.println("Grandchild: " + childTask.getClass().getSimpleName());
+                }
+            }
+        }
+
     }
 
     public void onStart(String... args) {
@@ -99,6 +103,7 @@ public class MassFighter extends TaskScript implements PaintListener, MouseListe
             sharedParent.add(new PrayerPoints());
             sharedParent.add(new QuickPray());
             sharedParent.add(new ReturnToArea());
+            sharedParent.add(new SafetyTeleport());
             // RS3 Parent containing child tasks
             sharedParent.add(rs3TaskParent);
             // OSRS Parent containing child tasks
@@ -113,7 +118,7 @@ public class MassFighter extends TaskScript implements PaintListener, MouseListe
             startExp = Skill.STRENGTH.getExperience() + Skill.RANGED.getExperience() + Skill.MAGIC.getExperience() + Skill.ATTACK.getExperience() + Skill.DEFENCE.getExperience()
                     + Skill.PRAYER.getExperience() + Skill.CONSTITUTION.getExperience();
             runningTime.start();
-            getSimpleTasks(getTasks());
+            outputSimpleTasks(getTasks());
         }
 
     }
@@ -199,7 +204,7 @@ public class MassFighter extends TaskScript implements PaintListener, MouseListe
                 g2d.drawString("Status: " + status, 7, 61);
                 g2d.drawString("Runtime: " + runningTime.getRuntimeAsString(), 7, 75);
                 g2d.setFont(plainSmallest);
-                g2d.drawString("Running Tasks: " + runningTaskNames, 7, 140);
+                //g2d.drawString("", 7, 140);
                 g2d.setFont(plainSmall);
                 // Level info
                 g2d.drawString("Constitution: " + Skill.CONSTITUTION.getCurrentLevel() + "(" + getLevelGain(constitutionLevel, Skill.CONSTITUTION) + ")", 161, 61);

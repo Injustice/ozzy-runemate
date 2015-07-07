@@ -50,7 +50,6 @@ public class Heal extends Task {
             rootScript.getTasks().stream().filter(task -> task != null && task instanceof Heal).forEach(task -> {
                 out("Heal: Successfully removed heal task");
                 rootScript.remove(task);
-                MassFighter.getSimpleTasks(rootScript.getTasks());
             });
         }
     }
