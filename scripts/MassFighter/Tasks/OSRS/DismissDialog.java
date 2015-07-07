@@ -10,14 +10,16 @@ import com.runemate.game.api.script.framework.task.Task;
  */
 public class DismissDialog extends Task {
 
+    ChatDialog.Continue continueOption;
+
     public boolean validate() {
-        return ChatDialog.getContinue() != null;
+        return (continueOption = ChatDialog.getContinue()) != null;
     }
 
     @Override
     public void execute() {
-        if (ChatDialog.getContinue().select()) {
-            Execution.delayUntil(() -> ChatDialog.getContinue() == null, 3000);
+        if (continueOption.select()) {
+            Execution.delayUntil(() -> continueOption == null, 1000, 3000);
         }
     }
 }

@@ -93,6 +93,7 @@ public class MassFighter extends TaskScript implements PaintListener, MouseListe
 
             Task sharedParent = new SharedParent();
             // Tasks for both RS3 and OSRS
+            sharedParent.add(new SafetyTeleport());
             sharedParent.add(new Alchemy());
             sharedParent.add(new Ammunition());
             sharedParent.add(new Attack());
@@ -103,7 +104,6 @@ public class MassFighter extends TaskScript implements PaintListener, MouseListe
             sharedParent.add(new PrayerPoints());
             sharedParent.add(new QuickPray());
             sharedParent.add(new ReturnToArea());
-            sharedParent.add(new SafetyTeleport());
             // RS3 Parent containing child tasks
             sharedParent.add(rs3TaskParent);
             // OSRS Parent containing child tasks

@@ -55,9 +55,10 @@ public class Attack extends Task {
             attackingNpcQuery = Npcs.newQuery().actions("Attack").targeting(player).filter(new Filter<Npc>() {
                 @Override
                 public boolean accepts(Npc npc) {
-                    return npc != null && npc.getPosition() != null && (Settings.bypassReachable || npc.getPosition().isReachable());
+                    return npc != null && npc.getPosition() != null;
                 }
             });
+            if (!Settings.bypassReachable) attackingNpcQuery = attackingNpcQuery.reachable();
         }
         return attackingNpcQuery;
     }
@@ -72,10 +73,10 @@ public class Attack extends Task {
                         @Override
                         public boolean accepts(Npc npc) {
                             return npc != null && npc.getPosition() != null && (Settings.attackCombatMonsters ? npc.isValid()
-                                    : npc.isValid() && npc.getId() != 1273 && npc.getTarget() == null && npc.getHealthGauge() == null)
-                                    && (Settings.bypassReachable || npc.getPosition().isReachable());
+                                    : npc.isValid() && npc.getId() != 1273 && npc.getTarget() == null && npc.getHealthGauge() == null);
                         }
                     });
+            if (!Settings.bypassReachable) suitableNpcQuery = suitableNpcQuery.reachable();
         }
         return suitableNpcQuery;
     }
