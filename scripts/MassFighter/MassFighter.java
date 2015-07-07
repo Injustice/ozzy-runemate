@@ -12,6 +12,7 @@ import com.runemate.game.api.hybrid.util.calculations.CommonMath;
 import com.runemate.game.api.osrs.net.Zybez;
 import com.runemate.game.api.rs3.net.GrandExchange;
 import com.runemate.game.api.script.Execution;
+import com.runemate.game.api.script.framework.core.LoopingThread;
 import com.runemate.game.api.script.framework.listeners.InventoryListener;
 import com.runemate.game.api.script.framework.listeners.events.ItemEvent;
 import com.runemate.game.api.script.framework.task.Task;
@@ -21,11 +22,8 @@ import scripts.MassFighter.Framework.Methods;
 import scripts.MassFighter.GUI.Main;
 import scripts.MassFighter.GUI.Settings;
 import scripts.MassFighter.Tasks.OSRS.DismissDialog;
-import scripts.MassFighter.Tasks.OSRSParent;
 import scripts.MassFighter.Tasks.RS3.*;
-import scripts.MassFighter.Tasks.RS3Parent;
 import scripts.MassFighter.Tasks.Shared.*;
-import scripts.MassFighter.Tasks.SharedParent;
 
 import java.awt.*;
 import java.awt.event.MouseEvent;
@@ -57,19 +55,7 @@ public class MassFighter extends TaskScript implements PaintListener, MouseListe
     private final int rangedLevel = Skill.RANGED.getBaseLevel();
     private final int mageLevel = Skill.MAGIC.getBaseLevel();
     private final int prayerLevel = Skill.PRAYER.getBaseLevel();
-
-    public static void outputSimpleTasks(List<Task> tasks) {
-        for (Task task : tasks) {
-            System.out.println("Global Parent Task: " + task.getClass().getSimpleName());
-            for (Task subTask : task.getChildren()) {
-                System.out.println("Child: " + subTask.getClass().getSimpleName());
-                for (Task childTask : subTask.getChildren()) {
-                    System.out.println("Grandchild: " + childTask.getClass().getSimpleName());
-                }
-            }
-        }
-
-    }
+    
 
     public void onStart(String... args) {
 
@@ -81,36 +67,26 @@ public class MassFighter extends TaskScript implements PaintListener, MouseListe
             showAndWaitGUI();
             methods = new Methods();
 
-            Task rs3TaskParent = new RS3Parent();
-            rs3TaskParent.add(new Abilities());
-            rs3TaskParent.add(new LootMenu());
-            rs3TaskParent.add(new MagicNotepaper());
-            rs3TaskParent.add(new Soulsplit());
             // rs3TaskParent.add(new SummonFamiliar());
-
-            Task osrsTaskParent = new OSRSParent();
-            osrsTaskParent.add(new DismissDialog());
-
-            Task sharedParent = new SharedParent();
-            // Tasks for both RS3 and OSRS
-            sharedParent.add(new SafetyTeleport());
-            sharedParent.add(new Alchemy());
-            sharedParent.add(new Ammunition());
-            sharedParent.add(new Attack());
-            sharedParent.add(new Boost());
-            sharedParent.add(new BuryBones());
-            sharedParent.add(new Heal());
-            sharedParent.add(new Loot());
-            sharedParent.add(new PrayerPoints());
-            sharedParent.add(new QuickPray());
-            sharedParent.add(new ReturnToArea());
-            // RS3 Parent containing child tasks
-            sharedParent.add(rs3TaskParent);
-            // OSRS Parent containing child tasks
-            sharedParent.add(osrsTaskParent);
-
-            // Add shared parent
-            add(sharedParent);
+            if (Environment.isRS3()) {
+                new LoopingThread(new Abilities(), 1000, 1200).start();
+                add(new LootMenu());
+                add(new MagicNotepaper());
+                add(new Soulsplit());
+            } else {
+                add(new DismissDialog());
+            }
+            add(new SafetyTeleport());
+            add(new Alchemy());
+            add(new Ammunition());
+            add(new Attack());
+            add(new Boost());
+            add(new BuryBones());
+            add(new Heal());
+            add(new Loot());
+            add(new PrayerPoints());
+            add(new QuickPray());
+            add(new ReturnToArea());
 
 
             startExpNoHp = Skill.STRENGTH.getExperience() + Skill.RANGED.getExperience() + Skill.MAGIC.getExperience() + Skill.ATTACK.getExperience() + Skill.DEFENCE.getExperience()
@@ -118,7 +94,6 @@ public class MassFighter extends TaskScript implements PaintListener, MouseListe
             startExp = Skill.STRENGTH.getExperience() + Skill.RANGED.getExperience() + Skill.MAGIC.getExperience() + Skill.ATTACK.getExperience() + Skill.DEFENCE.getExperience()
                     + Skill.PRAYER.getExperience() + Skill.CONSTITUTION.getExperience();
             runningTime.start();
-            outputSimpleTasks(getTasks());
         }
 
     }
