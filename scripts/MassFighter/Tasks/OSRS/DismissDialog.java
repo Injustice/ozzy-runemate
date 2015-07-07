@@ -1,4 +1,4 @@
-package scripts.MassFighter.Tasks;
+package scripts.MassFighter.Tasks.OSRS;
 
 import com.runemate.game.api.hybrid.local.hud.interfaces.ChatDialog;
 import com.runemate.game.api.script.Execution;

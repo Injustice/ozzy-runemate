@@ -1,4 +1,4 @@
-package scripts.MassFighter.Tasks;
+package scripts.MassFighter.Tasks.RS3;
 
 import com.runemate.game.api.hybrid.Environment;
 import com.runemate.game.api.hybrid.local.hud.interfaces.Health;

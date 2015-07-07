@@ -1,4 +1,4 @@
-package scripts.MassFighter.Tasks;
+package scripts.MassFighter.Tasks.Shared;
 
 import com.runemate.game.api.hybrid.local.hud.interfaces.Health;
 import com.runemate.game.api.hybrid.local.hud.interfaces.Inventory;

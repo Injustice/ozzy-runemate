@@ -1,4 +1,4 @@
-package scripts.MassFighter.Tasks;
+package scripts.MassFighter.Tasks.Shared;
 
 import com.runemate.game.api.hybrid.Environment;
 import com.runemate.game.api.hybrid.local.hud.interfaces.InterfaceComponent;

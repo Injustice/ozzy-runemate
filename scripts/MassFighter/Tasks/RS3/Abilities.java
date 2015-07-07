@@ -1,4 +1,4 @@
-package scripts.MassFighter.Tasks;
+package scripts.MassFighter.Tasks.RS3;
 
 import com.runemate.game.api.hybrid.region.Players;
 import com.runemate.game.api.rs3.local.hud.interfaces.eoc.ActionBar;

@@ -21,7 +21,12 @@ import javafx.application.Platform;
 import scripts.MassFighter.Framework.Methods;
 import scripts.MassFighter.GUI.Main;
 import scripts.MassFighter.GUI.Settings;
-import scripts.MassFighter.Tasks.*;
+import scripts.MassFighter.Tasks.OSRS.DismissDialog;
+import scripts.MassFighter.Tasks.OSRSParent;
+import scripts.MassFighter.Tasks.RS3.*;
+import scripts.MassFighter.Tasks.RS3Parent;
+import scripts.MassFighter.Tasks.Shared.*;
+import scripts.MassFighter.Tasks.SharedParent;
 
 import java.awt.*;
 import java.awt.event.MouseEvent;
@@ -72,6 +77,30 @@ public class MassFighter extends TaskScript implements PaintListener, MouseListe
             showAndWaitGUI();
             methods = new Methods();
 
+            Task rs3TaskParent = new RS3Parent();
+            rs3TaskParent.add(new Abilities());
+            rs3TaskParent.add(new LootMenu());
+            rs3TaskParent.add(new MagicNotepaper());
+            rs3TaskParent.add(new Soulsplit());
+            // rs3TaskParent.add(new SummonFamiliar());
+
+            Task osrsTaskParent = new OSRSParent();
+            osrsTaskParent.add(new DismissDialog());
+
+            Task sharedParent = new SharedParent();
+            sharedParent.add(new Alchemy());
+            sharedParent.add(new Ammunition());
+            sharedParent.add(new Attack());
+            sharedParent.add(new Boost());
+            sharedParent.add(new BuryBones());
+            sharedParent.add(new Heal());
+            sharedParent.add(new Loot());
+            sharedParent.add(new PrayerPoints());
+            sharedParent.add(new QuickPray());
+            sharedParent.add(new ReturnToArea());
+
+            /*
+
             add(new SafetyTeleport());
             // RS3 Specific Tasks
             if (Environment.isRS3()) {
@@ -114,6 +143,7 @@ public class MassFighter extends TaskScript implements PaintListener, MouseListe
             add(new ReturnToArea());
             add(new DismissDialog());
             add(new Attack());
+            */
 
 
 
