@@ -7,6 +7,7 @@ import com.runemate.game.api.script.framework.task.Task;
  * ozzy.
  */
 public class SharedParent extends Task {
+
     @Override
     public void execute() {
 

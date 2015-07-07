@@ -88,6 +88,7 @@ public class MassFighter extends TaskScript implements PaintListener, MouseListe
             osrsTaskParent.add(new DismissDialog());
 
             Task sharedParent = new SharedParent();
+            // Tasks for both RS3 and OSRS
             sharedParent.add(new Alchemy());
             sharedParent.add(new Ammunition());
             sharedParent.add(new Attack());
@@ -98,6 +99,13 @@ public class MassFighter extends TaskScript implements PaintListener, MouseListe
             sharedParent.add(new PrayerPoints());
             sharedParent.add(new QuickPray());
             sharedParent.add(new ReturnToArea());
+            // RS3 Parent containing child tasks
+            sharedParent.add(rs3TaskParent);
+            // OSRS Parent containing child tasks
+            sharedParent.add(osrsTaskParent);
+
+            // Add shared parent
+            add(sharedParent);
 
 
             startExpNoHp = Skill.STRENGTH.getExperience() + Skill.RANGED.getExperience() + Skill.MAGIC.getExperience() + Skill.ATTACK.getExperience() + Skill.DEFENCE.getExperience()
