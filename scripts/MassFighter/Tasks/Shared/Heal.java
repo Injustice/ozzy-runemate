@@ -17,7 +17,7 @@ import static scripts.MassFighter.Framework.Methods.out;
 public class Heal extends Task {
 
     public boolean validate() {
-        return Methods.arrayIsValid(Settings.foodNames) && Health.getCurrent() < Settings.eatValue;
+        return Methods.arrayIsValid(Settings.foodNames) && Health.getCurrent() < Methods.changeHealthValue(Settings.eatValue);
     }
 
     @Override

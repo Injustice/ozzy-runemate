@@ -5,7 +5,7 @@ import scripts.MassFighter.GUI.Settings;
 
 public enum SkillPotion {
 
-    /* Contains potions which perform a temporary boost to a skill */
+    /* Contains potions which provide a temporary boost to a skill */
 
     /* OSRS */
     // ATTACK POTIONS
