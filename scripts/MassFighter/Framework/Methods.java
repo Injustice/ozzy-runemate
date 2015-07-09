@@ -12,6 +12,7 @@ import com.runemate.game.api.hybrid.region.Npcs;
 import com.runemate.game.api.hybrid.region.Players;
 import com.runemate.game.api.hybrid.util.Filter;
 import com.runemate.game.api.hybrid.util.Filters;
+import com.runemate.game.api.hybrid.util.calculations.CommonMath;
 import com.runemate.game.api.hybrid.util.calculations.Random;
 import com.runemate.game.api.osrs.net.Zybez;
 import com.runemate.game.api.rs3.local.hud.Powers;
@@ -85,12 +86,11 @@ public final class Methods {
 
     public static int changeHealthValue(int setValue) {
         int maxHealth = Health.getMaximum();
-        int randIncrease = Random.nextInt((maxHealth / 100) * 5);
-        int eatValue = setValue + randIncrease;
-        if ((eatValue > maxHealth)) return setValue;
-        else return eatValue;
+        float increase = (float)maxHealth/100*Random.nextInt(0, 10);
+        int eatValue = setValue +  Math.round(increase);
+        return eatValue > maxHealth ? setValue : eatValue;
     }
-    
+
     public static void out(String s) {
         if (MassFighter.debug) {
             System.out.println("MassFighter - " + s);
