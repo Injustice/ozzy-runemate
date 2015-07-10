@@ -1,6 +1,10 @@
 package scripts.MassFighter.Tasks.RS3;
 
+import com.runemate.game.api.hybrid.entities.Npc;
 import com.runemate.game.api.hybrid.entities.Player;
+import com.runemate.game.api.hybrid.queries.NpcQueryBuilder;
+import com.runemate.game.api.hybrid.queries.results.LocatableEntityQueryResults;
+import com.runemate.game.api.hybrid.region.Npcs;
 import com.runemate.game.api.hybrid.region.Players;
 import com.runemate.game.api.rs3.local.hud.interfaces.eoc.ActionBar;
 import com.runemate.game.api.rs3.local.hud.interfaces.eoc.SlotAction;
@@ -17,11 +21,16 @@ import static scripts.MassFighter.Framework.Methods.out;
 public class Abilities extends Task implements Runnable {
 
     private List<SlotAction> abilities = new ArrayList<>();
+    private NpcQueryBuilder getNearbyTargets(Player player) {
+        return player != null ? Npcs.newQuery().targeting(player).actions("Attack") : null;
+    }
 
-    @Override
     public boolean validate() {
         Player player;
-        return (player = Players.getLocal()) != null && player.getTarget() != null;
+        Npc target;
+        LocatableEntityQueryResults<Npc> nearbyAttackableNcps;
+        return (player = Players.getLocal()) != null && (target = (Npc)player.getTarget()) != null
+                && (nearbyAttackableNcps = getNearbyTargets(player).results()) != null && !nearbyAttackableNcps.isEmpty() && nearbyAttackableNcps.contains(target);
     }
 
     @Override
