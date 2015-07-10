@@ -24,6 +24,7 @@ import scripts.MassFighter.MassFighter;
 
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Objects;
 
 public final class Methods {
 
@@ -114,18 +115,24 @@ public final class Methods {
         int itemValue = 0;
         String itemName = gItem.getDefinition().getName();
         int itemId = gItem.getId();
-        if (itemPrices.containsKey(itemName)) {
-            itemValue = itemPrices.get(itemName);
+        if (itemName.equals("Coins")) {
+            System.out.println("Loot Value: We have found coins, getting quantity..");
+            itemValue = gItem.getQuantity();
+            System.out.println("Loot Value: Coin worth = " + itemValue);
         } else {
-            if (Environment.isRS3()) {
-                GrandExchange.Item item = GrandExchange.lookup(itemId);
-                if (item != null) {
-                    itemValue = item.getPrice();
-                }
+            if (itemPrices.containsKey(itemName)) {
+                itemValue = itemPrices.get(itemName);
             } else {
-                itemValue = Zybez.getAveragePrice(itemName);
+                if (Environment.isRS3()) {
+                    GrandExchange.Item item = GrandExchange.lookup(itemId);
+                    if (item != null) {
+                        itemValue = item.getPrice();
+                    }
+                } else {
+                    itemValue = Zybez.getAveragePrice(itemName);
+                }
+                itemPrices.put(itemName, itemValue);
             }
-            itemPrices.put(itemName, itemValue);
         }
         return itemValue >= Settings.lootValue;
     }

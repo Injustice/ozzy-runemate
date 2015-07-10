@@ -59,8 +59,6 @@ public class Ammunition extends Task {
         }
         if (targetAmmo != null && Inventory.equip(targetAmmo)) {
             Execution.delayUntil(() -> !targetAmmo.isValid(), 2000);
-        } else {
-            System.out.println("failed to re-equip");
         }
     }
 
