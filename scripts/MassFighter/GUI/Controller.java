@@ -230,28 +230,23 @@ public class Controller {
                 tagSlider.setDisable(true);
             }
         });
-
         btnAddFood.setOnAction(event -> {
             if (!txtFoodInput.getText().isEmpty() && !foodSelection.getItems().contains(txtFoodInput.getText())) {
                 foodSelection.getItems().add(txtFoodInput.getText());
                 txtFoodInput.clear();
             }
         });
-
         btnRemoveFood.setOnAction(event -> {
             if (!foodSelection.getSelectionModel().isEmpty()) {
                 foodSelection.getItems().removeAll(foodSelection.getSelectionModel().getSelectedItems());
             }
         });
-
         btnSave.setOnAction(event -> {
             save();
         });
-
         btnLoad.setOnAction(event -> {
             load();
         });
-
         abilities.setOnAction(event -> {
             if (abilities.isSelected()) {
                 revolutionMode.setDisable(false);
@@ -259,9 +254,7 @@ public class Controller {
                 revolutionMode.setDisable(true);
             }
         });
-
         soulsplitPerm.setOnAction(event -> soulsplitPercentage.setDisable(soulsplitPerm.isSelected()));
-
 
         // Toggles the lootByValue boolean which sets whether or not the script will attempt to lookup
         // and loot items above the set value.

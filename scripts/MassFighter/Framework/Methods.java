@@ -111,6 +111,19 @@ public final class Methods {
         return false;
     }
 
+    public static boolean itemIsNoted(Item item) {
+        if (item != null) {
+            ItemDefinition itemDefinition = item.getDefinition();
+            if (itemDefinition != null) {
+                int itemId = itemDefinition.getId();
+                int notedId = itemDefinition.getNotedId();
+                return itemId == notedId  || notedId == -1;
+            }
+        }
+        return false;
+    }
+
+
     public static Boolean isWorthLooting(GroundItem gItem) {
         int itemValue = 0;
         String itemName = gItem.getDefinition().getName();
