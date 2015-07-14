@@ -11,15 +11,20 @@ import com.runemate.game.api.hybrid.region.Players;
 import com.runemate.game.api.hybrid.util.io.ManagedProperties;
 import com.runemate.game.api.rs3.local.hud.interfaces.Summoning;
 import com.runemate.game.api.script.framework.AbstractScript;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import scripts.MassFighter.Data.SkillPotion;
 import scripts.MassFighter.MassFighter;
+import scripts.MassFighter.Tasks.Shared.PrayerPoints;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -33,8 +38,6 @@ public class Controller {
     @FXML
     private ListView<String> availableMonsters;
     @FXML
-    private ListView<String> selectedLoot;
-    @FXML
     private Button addLoot;
     @FXML
     private Button removeLoot;
@@ -45,7 +48,7 @@ public class Controller {
     @FXML
     private ListView<String> selectedMonsters;
     @FXML
-    private TextField eatValue;
+    private Slider eatValue;
     @FXML
     private TextField tileRange;
     @FXML
@@ -55,15 +58,11 @@ public class Controller {
     @FXML
     private CheckBox soulsplit;
     @FXML
-    private CheckBox stopWhenOutOfFood;
-    @FXML
     private CheckBox lootInCombat;
     @FXML
     private CheckBox buryBones;
     @FXML
     private Slider targetSlider;
-    @FXML
-    private CheckBox waitLoot;
     @FXML
     private Button npcButton;
     @FXML
@@ -77,9 +76,7 @@ public class Controller {
     @FXML
     private CheckBox quickPray;
     @FXML
-    private TextField prayValue;
-    @FXML
-    private CheckBox exitPrayer;
+    private Slider prayValue;
     @FXML
     private CheckBox tagMode;
     @FXML
@@ -101,8 +98,6 @@ public class Controller {
     @FXML
     private Button btnAddToAlch;
     @FXML
-    private ListView<String> selectedAlchLoot;
-    @FXML
     private CheckBox showOutline;
     @FXML
     private ListView<String> availableBoosts;
@@ -116,8 +111,6 @@ public class Controller {
     private CheckBox bypassReachable;
     @FXML
     private Button btnAddToNotepaper;
-    @FXML
-    private ListView<String> selectedNotepaperLoot;
     @FXML
     private Slider boostRefreshPercentage;
     @FXML
@@ -142,6 +135,25 @@ public class Controller {
     private CheckBox safetyLogout;
     @FXML
     private CheckBox safetyTeleport;
+    @FXML
+    private ComboBox<String> abilitiesMode;
+    @FXML
+    private VBox guiVbox;
+    @FXML
+    private ListView<String> pickupLoot;
+    @FXML
+    private ListView<String> alchemyLoot;
+    @FXML
+    private ListView<String> magicNotepaperLoot;
+    @FXML
+    private Button btnRemovePickupLoot;
+    @FXML
+    private Button btnRemoveAlchemyLoot;
+    @FXML
+    private Button btnRemoveNotepaperLoot;
+
+
+
 
     private List<String> getAvailableMonsters(Area area, String action) {
         List<String> availableNpcs = new ArrayList<>();
@@ -155,7 +167,19 @@ public class Controller {
 
     public void initialize() {
 
+
+        guiVbox.setOnMouseMoved(event -> {
+            if (!selectedMonsters.getItems().isEmpty() && isNumeric(tileRange.getText())) {
+                btnStart.setText("Start Bot");
+            } else {
+                btnStart.setText("We're not setup to fight yet.");
+            }
+        });
+
+
         selectedBoosts.getItems().clear();
+
+        abilitiesMode.getItems().addAll("Legacy/OSRS", "Full Ability Usage", "Revolution Mode");
 
         AbstractScript script = Environment.getScript();
         if (script != null) {
@@ -270,13 +294,13 @@ public class Controller {
 
         // Init fields
         tileRange.setText("10");
-        eatValue.setText(Integer.toString(Health.getMaximum() / 2));
+        eatValue.setValue(Health.getMaximum() / 2);
+        criticalHitpoints.setText(Double.toString((Health.getMaximum() / 5)));
+        prayValue.setValue(50);
         if (Environment.isRS3()) {
             criticalHitpoints.setText("500");
-            prayValue.setText("50");
         } else {
             criticalHitpoints.setText("5");
-            prayValue.setText("5");
         }
         boostRefreshPercentage.setValue(50);
 
@@ -303,12 +327,12 @@ public class Controller {
     }
 
     private boolean run() {
-        if (!selectedMonsters.getItems().isEmpty() && isNumeric(tileRange.getText()) && isNumeric(prayValue.getText()) && isNumeric(eatValue.getText()) && isNumeric(criticalHitpoints.getText())) {
+        if (!selectedMonsters.getItems().isEmpty() && isNumeric(tileRange.getText()) && isNumeric(prayValue.getText()) && isNumeric(criticalHitpoints.getText())) {
             // Create a settings object and store the settings
             if (!foodSelection.getItems().isEmpty()) {
                 List<String> foodNames = foodSelection.getItems().stream().map(String::toLowerCase).collect(Collectors.toList());
                 Settings.foodNames = foodNames.toArray(new String[foodNames.size()]);
-                Settings.eatValue = Integer.valueOf(eatValue.getText());
+                Settings.eatValue = (int) eatValue.getValue();
             }
             if (quickPray.isSelected() || soulsplit.isSelected()) {
                 Settings.prayValue = Integer.valueOf(prayValue.getText());
@@ -320,7 +344,6 @@ public class Controller {
             Settings.attackCombatMonsters = attackCombatMonsters.isSelected();
             Settings.bypassReachable = bypassReachable.isSelected();
             Settings.showOutline = showOutline.isSelected();
-            Settings.waitForLoot = waitLoot.isSelected();
             Settings.targetSelection = (int) targetSlider.getValue();
             Settings.lootInCombat = lootInCombat.isSelected();
             Settings.useAbilities = abilities.isSelected();
@@ -430,7 +453,6 @@ public class Controller {
                     lootInCombat.setSelected(Boolean.valueOf(managedProperties.getProperty("lootInCombat")));
                     abilities.setSelected(Boolean.valueOf(managedProperties.getProperty("useAbilities")));
                     soulsplit.setSelected(Boolean.valueOf(managedProperties.getProperty("useSoulsplit")));
-                    waitLoot.setSelected(Boolean.valueOf(managedProperties.getProperty("waitForLoot")));
                     buryBones.setSelected(Boolean.valueOf(managedProperties.getProperty("buryBones")));
                     quickPray.setSelected(Boolean.valueOf(managedProperties.getProperty("quickPray")));
                     exitPrayer.setSelected(Boolean.valueOf(managedProperties.getProperty("exitOnPrayerOut")));
@@ -468,7 +490,7 @@ public class Controller {
                     //
                     String eatValueString = managedProperties.getProperty("eatValue");
                     if (isNumeric(eatValueString)) {
-                        eatValue.setText(eatValueString);
+                        eatValue.setValue(Double.valueOf(eatValueString));
                     }
                     //
                     String prayValueString = managedProperties.getProperty("prayValue");
@@ -500,6 +522,7 @@ public class Controller {
 
     private boolean save() {
 
+
         if (!selectedMonsters.getItems().isEmpty()) {
             AbstractScript script = Environment.getScript();
             if (script != null) {
@@ -520,17 +543,13 @@ public class Controller {
                     managedProperties.setProperty("targetSelection", Double.toString(targetSlider.getValue()));
                     managedProperties.setProperty("useFood", Boolean.toString(!foodSelection.getItems().isEmpty()));
                     managedProperties.setProperty("showOutline", Boolean.toString(showOutline.isSelected()));
-                    managedProperties.setProperty("exitOutFood", Boolean.toString(stopWhenOutOfFood.isSelected()));
                     managedProperties.setProperty("lootInCombat", Boolean.toString(lootInCombat.isSelected()));
                     managedProperties.setProperty("useAbilities", Boolean.toString(abilities.isSelected()));
                     managedProperties.setProperty("useSoulsplit", Boolean.toString(soulsplit.isSelected()));
                     managedProperties.setProperty("safetyLogout", Boolean.toString(safetyLogout.isSelected()));
                     managedProperties.setProperty("safetyTeleport", Boolean.toString(safetyTeleport.isSelected()));
-                    managedProperties.setProperty("waitForLoot", Boolean.toString(waitLoot.isSelected()));
-                    managedProperties.setProperty("looting", Boolean.toString(!selectedLoot.getItems().isEmpty()));
                     managedProperties.setProperty("buryBones", Boolean.toString(buryBones.isSelected()));
                     managedProperties.setProperty("quickPray", Boolean.toString(quickPray.isSelected()));
-                    managedProperties.setProperty("exitOnPrayerOut", Boolean.toString(exitPrayer.isSelected()));
                     managedProperties.setProperty("tagMode", Boolean.toString(tagMode.isSelected()));
                     managedProperties.setProperty("attackCombatMonsters", Boolean.toString(attackCombatMonsters.isSelected()));
                     managedProperties.setProperty("bypassReachable", Boolean.toString(bypassReachable.isSelected()));
@@ -546,8 +565,8 @@ public class Controller {
                     managedProperties.setProperty("foodNames", foodString);
                     //
                     managedProperties.setProperty("fightRadius", tileRange.getText());
-                    managedProperties.setProperty("eatValue", eatValue.getText());
-                    managedProperties.setProperty("prayValue", prayValue.getText());
+                    managedProperties.setProperty("eatValue", Double.toString(eatValue.getValue()));
+                    managedProperties.setProperty("prayValue", Double.toString(prayValue.getValue()));
                     managedProperties.setProperty("criticalHitpoints", criticalHitpoints.getText());
                     //
                     String potionString = String.join(",", selectedBoosts.getItems());

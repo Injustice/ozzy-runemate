@@ -18,7 +18,6 @@ public class Settings {
     public static Boolean lootInCombat = false;
     public static Boolean useAbilities = false;
     public static Boolean useSoulsplit = false;
-    public static Boolean waitForLoot = false;
     public static Boolean buryBones = false;
     public static Boolean quickPray = false;
     public static Boolean exitOnPrayerOut = false;
