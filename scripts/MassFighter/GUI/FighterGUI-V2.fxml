@@ -18,8 +18,8 @@
                   <ToolBar fx:id="splt" prefHeight="40.0" prefWidth="200.0">
                     <items>
                         <Label text="Keep your favourite settings in the Cloud:" />
-                      <Button mnemonicParsing="false" text="Upload Settings" />
-                        <Button mnemonicParsing="false" text="Download Settings" />
+                      <Button fx:id="btnSave" mnemonicParsing="false" text="Upload Settings" />
+                        <Button fx:id="btnLoad" mnemonicParsing="false" text="Download Settings" />
                     </items>
                   </ToolBar>
                </items>
@@ -163,12 +163,12 @@
                                               <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                                                    <children>
                                                       <Label layoutX="14.0" layoutY="22.0" text="Loot items worth over:" />
-                                                      <TextField layoutX="144.0" layoutY="18.0" prefHeight="25.0" prefWidth="102.0" />
+                                                      <TextField fx:id="lootValue" layoutX="144.0" layoutY="18.0" prefHeight="25.0" prefWidth="102.0" />
                                                       <Label layoutX="254.0" layoutY="22.0" text="gp" />
-                                                      <CheckBox layoutX="284.0" layoutY="22.0" mnemonicParsing="false" text="Also restrict coins to this amount" />
-                                                      <CheckBox layoutX="14.0" layoutY="54.0" mnemonicParsing="false" text="Loot whilst in combat" />
-                                                      <CheckBox layoutX="14.0" layoutY="82.0" mnemonicParsing="false" text="Bury bones/ashes in my inventory" />
-                                                      <CheckBox layoutX="14.0" layoutY="112.0" mnemonicParsing="false" text="Equip ammunition in my inventory (Prioritises the type you are using)" />
+                                                      <CheckBox fx:id="coinValueRestrict" layoutX="284.0" layoutY="22.0" mnemonicParsing="false" text="Also restrict coins to this amount" />
+                                                      <CheckBox fx:id="lootInCombat" layoutX="14.0" layoutY="54.0" mnemonicParsing="false" text="Loot whilst in combat" />
+                                                      <CheckBox fx:id="buryBones" layoutX="14.0" layoutY="82.0" mnemonicParsing="false" text="Bury bones/ashes in my inventory" />
+                                                      <CheckBox fx:id="reequipAmmunition" layoutX="14.0" layoutY="112.0" mnemonicParsing="false" text="Equip ammunition in my inventory (Prioritises the type you are using)" />
                                                    </children>
                                                 </AnchorPane>
                                             </content>

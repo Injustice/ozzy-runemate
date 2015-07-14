@@ -10,29 +10,22 @@ import com.runemate.game.api.hybrid.queries.NpcQueryBuilder;
 import com.runemate.game.api.hybrid.region.Npcs;
 import com.runemate.game.api.hybrid.region.Players;
 import com.runemate.game.api.hybrid.util.io.ManagedProperties;
-import com.runemate.game.api.rs3.local.hud.interfaces.Summoning;
 import com.runemate.game.api.script.framework.AbstractScript;
-import com.sun.deploy.util.StringUtils;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.Button;
-import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import scripts.MassFighter.Data.SkillPotion;
 import scripts.MassFighter.MassFighter;
-import scripts.MassFighter.Tasks.Shared.PrayerPoints;
 
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Observable;
 import java.util.stream.Collectors;
 
 
@@ -42,8 +35,6 @@ public class Controller {
     private ListView<String> availableMonsters;
     @FXML
     private Button addLoot;
-    @FXML
-    private Button removeLoot;
     @FXML
     private TextField lootName;
     @FXML
@@ -67,15 +58,11 @@ public class Controller {
     @FXML
     private Button refreshButton;
     @FXML
-    private Tab lootTab;
-    @FXML
     private TextField criticalHitpoints;
     @FXML
     private CheckBox quickPray;
     @FXML
     private Slider prayValue;
-    @FXML
-    private CheckBox tagMode;
     @FXML
     private Slider tagSlider;
     @FXML
@@ -83,11 +70,7 @@ public class Controller {
     @FXML
     private TextField lootValue;
     @FXML
-    private CheckBox lootByValue;
-    @FXML
     private Button btnAddToAlch;
-    @FXML
-    private CheckBox showOutline;
     @FXML
     private ListView<String> availableBoosts;
     @FXML
@@ -197,13 +180,6 @@ public class Controller {
                 availableBoosts.getSelectionModel().getSelectedItems().stream().filter(s -> !selectedBoosts.getItems().contains(s)).forEach(s -> selectedBoosts.getItems().add(s));
             }
         });
-        tagMode.setOnAction(event -> {
-            if (tagMode.isSelected()) {
-                tagSlider.setDisable(false);
-            } else {
-                tagSlider.setDisable(true);
-            }
-        });
         btnAddFood.setOnAction(event -> {
             if (!txtFoodInput.getText().isEmpty() && !foodSelection.getItems().contains(txtFoodInput.getText())) {
                 foodSelection.getItems().add(txtFoodInput.getText());
@@ -225,10 +201,6 @@ public class Controller {
 
         soulsplitPerm.setOnAction(event -> soulsplitPercentage.setDisable(soulsplitPerm.isSelected()));
 
-        // Toggles the lootByValue boolean which sets whether or not the script will attempt to lookup
-        // and loot items above the set value.
-        lootByValue.setOnAction(event -> lootValue.setDisable(!lootByValue.isSelected()));
-
         addLoot.setOnAction(event -> {
             addToList(lootName.getText(), pickupLoot.getItems());
         });
@@ -245,7 +217,7 @@ public class Controller {
             addToList(lootInput, magicNotepaperLoot.getItems());
         });
 
-        removeLoot.setOnAction(event -> {
+        btnRemovePickupLoot.setOnAction(event -> {
             removeFromList(pickupLoot.getSelectionModel().getSelectedItems(), pickupLoot.getItems());
         });
 
@@ -319,13 +291,12 @@ public class Controller {
             if (quickPray.isSelected() || soulsplit.isSelected()) {
                 Settings.prayValue = (int) prayValue.getValue();
             }
-            if (tagMode.isSelected()) {
+            if (tagSlider.getValue() > 1) {
                 Settings.tagMode = true;
                 Settings.tagSelection = (int) tagSlider.getValue();
             }
             Settings.attackCombatMonsters = attackCombatMonsters.isSelected();
             Settings.bypassReachable = bypassReachable.isSelected();
-            Settings.showOutline = showOutline.isSelected();
             Settings.targetSelection = (int) targetSlider.getValue();
             Settings.lootInCombat = lootInCombat.isSelected();
             Settings.useAbilities = abilitiesMode.getSelectionModel().getSelectedIndex() != 0;
@@ -352,7 +323,7 @@ public class Controller {
                 lootNames.addAll(pickupLoot.getItems().stream().map(String::toLowerCase).collect(Collectors.toList()));
                 Settings.lootNames = lootNames.toArray(new String[lootNames.size()]);
             }
-            if (lootByValue.isSelected() && isNumeric(lootValue.getText())) {
+            if (isNumeric(lootValue.getText())) {
                 Settings.lootByValue = true;
                 Settings.lootValue = Double.valueOf(lootValue.getText());
             }
@@ -399,7 +370,6 @@ public class Controller {
                     if (isNumeric(targetSelectionString)) {
                         targetSlider.setValue(Integer.valueOf(targetSelectionString));
                     }
-                    showOutline.setSelected(Boolean.valueOf(managedProperties.getProperty("showOutline")));
                     logoutFood.setSelected(Boolean.valueOf(managedProperties.getProperty("foodLogout")));
                     teleportFood.setSelected(Boolean.valueOf(managedProperties.getProperty("foodTeleport")));
                     logoutHitpoints.setSelected(Boolean.valueOf(managedProperties.getProperty("hitpointsLogout")));
@@ -409,10 +379,8 @@ public class Controller {
                     soulsplit.setSelected(Boolean.valueOf(managedProperties.getProperty("useSoulsplit")));
                     buryBones.setSelected(Boolean.valueOf(managedProperties.getProperty("buryBones")));
                     quickPray.setSelected(Boolean.valueOf(managedProperties.getProperty("quickPray")));
-                    tagMode.setSelected(Boolean.valueOf(managedProperties.getProperty("tagMode")));
                     attackCombatMonsters.setSelected(Boolean.valueOf(managedProperties.getProperty("attackCombatMonsters")));
                     bypassReachable.setSelected(Boolean.valueOf(managedProperties.getProperty("bypassReachable")));
-                    lootByValue.setSelected(Boolean.valueOf(managedProperties.getProperty("lootByValue")));
                     reequipAmmunition.setSelected(Boolean.valueOf(managedProperties.getProperty("equipAmmunition")));
                     soulsplitPerm.setSelected(Boolean.valueOf(managedProperties.getProperty("soulsplitPermanent")));
                     //
@@ -493,7 +461,6 @@ public class Controller {
                     managedProperties.setProperty("notepaperLoot", notepaperLootString);
                     managedProperties.setProperty("targetSelection", Double.toString(targetSlider.getValue()));
                     managedProperties.setProperty("useFood", Boolean.toString(!foodSelection.getItems().isEmpty()));
-                    managedProperties.setProperty("showOutline", Boolean.toString(showOutline.isSelected()));
                     managedProperties.setProperty("lootInCombat", Boolean.toString(lootInCombat.isSelected()));
                     managedProperties.setProperty("abilityMode", Integer.toString(abilitiesMode.getSelectionModel().getSelectedIndex()));
                     managedProperties.setProperty("useSoulsplit", Boolean.toString(soulsplit.isSelected()));
@@ -503,10 +470,9 @@ public class Controller {
                     managedProperties.setProperty("hitpointsTeleport", Boolean.toString(teleportHitpoints.isSelected()));
                     managedProperties.setProperty("buryBones", Boolean.toString(buryBones.isSelected()));
                     managedProperties.setProperty("quickPray", Boolean.toString(quickPray.isSelected()));
-                    managedProperties.setProperty("tagMode", Boolean.toString(tagMode.isSelected()));
                     managedProperties.setProperty("attackCombatMonsters", Boolean.toString(attackCombatMonsters.isSelected()));
                     managedProperties.setProperty("bypassReachable", Boolean.toString(bypassReachable.isSelected()));
-                    managedProperties.setProperty("lootByValue", Boolean.toString(lootByValue.isSelected()));
+                    managedProperties.setProperty("lootByValue", Boolean.toString(isNumeric(lootValue.toString())));
                     managedProperties.setProperty("equipAmmunition", Boolean.toString(reequipAmmunition.isSelected()));
                     managedProperties.setProperty("soulsplitPermanent", Boolean.toString(soulsplitPerm.isSelected()));
                     managedProperties.setProperty("soulsplitPercentage", Double.toString(soulsplitPercentage.getValue()));
