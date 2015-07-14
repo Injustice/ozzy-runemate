@@ -1,5 +1,6 @@
 package scripts.MassFighter.GUI;
 
+import com.runemate.game.api.client.ClientUI;
 import com.runemate.game.api.hybrid.Environment;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -23,7 +24,7 @@ public class Main extends Stage {
     }
 
     private void start(Stage stage) throws Exception {
-        InputStream input = MassFighter.class.getResourceAsStream("/scripts/MassFighter/GUI/FighterGUI.fxml");
+        InputStream input = MassFighter.class.getResourceAsStream("/scripts/MassFighter/GUI/FighterGUI-V2.fxml");
         if (input != null) {
             FXMLLoader loader = new FXMLLoader();
             loader.setController(new Controller());

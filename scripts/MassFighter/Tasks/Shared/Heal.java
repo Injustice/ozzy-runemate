@@ -40,11 +40,7 @@ public class Heal extends Task {
             } else {
                 out("Heal: Food item is invalid");
             }
-        } else if (Settings.exitOutFood && Settings.safetyLogout) {
-            out("Heal: We're out of food, exiting");
-            Methods.logout();
         } else {
-            Settings.foodNames = null;
             out("Heal: Attempting to remove heal task");
             TaskScript rootScript = (TaskScript) Environment.getScript();
             rootScript.getTasks().stream().filter(task -> task != null && task instanceof Heal).forEach(task -> {

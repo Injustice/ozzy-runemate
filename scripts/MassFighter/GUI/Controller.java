@@ -1,5 +1,6 @@
 package scripts.MassFighter.GUI;
 
+import com.runemate.game.api.client.ClientUI;
 import com.runemate.game.api.hybrid.Environment;
 import com.runemate.game.api.hybrid.entities.Npc;
 import com.runemate.game.api.hybrid.entities.Player;
@@ -11,6 +12,7 @@ import com.runemate.game.api.hybrid.region.Players;
 import com.runemate.game.api.hybrid.util.io.ManagedProperties;
 import com.runemate.game.api.rs3.local.hud.interfaces.Summoning;
 import com.runemate.game.api.script.framework.AbstractScript;
+import com.sun.deploy.util.StringUtils;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -30,6 +32,7 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Observable;
 import java.util.stream.Collectors;
 
 
@@ -44,8 +47,6 @@ public class Controller {
     @FXML
     private TextField lootName;
     @FXML
-    private Button addCharms;
-    @FXML
     private ListView<String> selectedMonsters;
     @FXML
     private Slider eatValue;
@@ -53,8 +54,6 @@ public class Controller {
     private TextField tileRange;
     @FXML
     private ListView<String> foodSelection;
-    @FXML
-    private CheckBox abilities;
     @FXML
     private CheckBox soulsplit;
     @FXML
@@ -70,8 +69,6 @@ public class Controller {
     @FXML
     private Tab lootTab;
     @FXML
-    private Label profileStatus;
-    @FXML
     private TextField criticalHitpoints;
     @FXML
     private CheckBox quickPray;
@@ -83,14 +80,6 @@ public class Controller {
     private Slider tagSlider;
     @FXML
     private Button btnStart;
-    @FXML
-    private Button btnSave;
-    @FXML
-    private Button btnLoad;
-    @FXML
-    private Tab tabAreas;
-    @FXML
-    private CheckBox revolutionMode;
     @FXML
     private TextField lootValue;
     @FXML
@@ -126,16 +115,6 @@ public class Controller {
     @FXML
     private Button btnRemoveFood;
     @FXML
-    private Label settingsStatus;
-    @FXML
-    private ListView<Summoning.Familiar> listFamiliars;
-    @FXML
-    private Button btnDeselectFamiliar;
-    @FXML
-    private CheckBox safetyLogout;
-    @FXML
-    private CheckBox safetyTeleport;
-    @FXML
     private ComboBox<String> abilitiesMode;
     @FXML
     private VBox guiVbox;
@@ -151,7 +130,18 @@ public class Controller {
     private Button btnRemoveAlchemyLoot;
     @FXML
     private Button btnRemoveNotepaperLoot;
-
+    @FXML
+    private Button btnSave;
+    @FXML
+    private Button btnLoad;
+    @FXML
+    private CheckBox logoutFood;
+    @FXML
+    private CheckBox logoutHitpoints;
+    @FXML
+    private CheckBox teleportFood;
+    @FXML
+    private CheckBox teleportHitpoints;
 
 
 
@@ -180,27 +170,11 @@ public class Controller {
         selectedBoosts.getItems().clear();
 
         abilitiesMode.getItems().addAll("Legacy/OSRS", "Full Ability Usage", "Revolution Mode");
-
-        AbstractScript script = Environment.getScript();
-        if (script != null) {
-            ManagedProperties managedProperties = script.getSettings();
-            if (managedProperties != null) {
-                String npcProperty = managedProperties.getProperty("npcNames");
-                if (npcProperty != null && npcProperty.length() > 0) {
-                    settingsStatus.setText("Cloud settings are available");
-                } else {
-                    settingsStatus.setText("You currently have no stored settings");
-                }
-            }
-        }
+        abilitiesMode.getSelectionModel().select(0);
 
         for (SkillPotion skillPotion : SkillPotion.values()) {
             availableBoosts.getItems().add(skillPotion.toString());
         }
-
-        listFamiliars.getItems().addAll(Summoning.Familiar.values());
-        listFamiliars.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
-        btnDeselectFamiliar.setOnAction(event -> listFamiliars.getSelectionModel().getSelectedItems().clear());
 
         refreshButton.setOnAction(event -> {
             availableMonsters.getItems().remove(0, availableMonsters.getItems().size());
@@ -241,53 +215,49 @@ public class Controller {
                 foodSelection.getItems().removeAll(foodSelection.getSelectionModel().getSelectedItems());
             }
         });
+
         btnSave.setOnAction(event -> {
             save();
         });
         btnLoad.setOnAction(event -> {
             load();
         });
-        abilities.setOnAction(event -> {
-            if (abilities.isSelected()) {
-                revolutionMode.setDisable(false);
-            } else {
-                revolutionMode.setDisable(true);
-            }
-        });
+
         soulsplitPerm.setOnAction(event -> soulsplitPercentage.setDisable(soulsplitPerm.isSelected()));
 
         // Toggles the lootByValue boolean which sets whether or not the script will attempt to lookup
         // and loot items above the set value.
         lootByValue.setOnAction(event -> lootValue.setDisable(!lootByValue.isSelected()));
 
-        // Adds the currently selected item in the loot list to the alchemy items list
+        addLoot.setOnAction(event -> {
+            addToList(lootName.getText(), pickupLoot.getItems());
+        });
+
         btnAddToAlch.setOnAction(event -> {
-            String selectedItem = selectedLoot.getSelectionModel().getSelectedItem();
-            if (selectedItem != null) {
-                if (!selectedAlchLoot.getItems().contains(selectedItem)) {
-                    selectedAlchLoot.getItems().add(selectedItem);
-                }
-            }
+            String lootInput = lootName.getText();
+            addToList(lootInput, pickupLoot.getItems());
+            addToList(lootInput, alchemyLoot.getItems());
         });
 
-        // Adds the currently selected item in the alchemy list to the notepaper items list
         btnAddToNotepaper.setOnAction(event -> {
-            String selectedItem = selectedLoot.getSelectionModel().getSelectedItem();
-            if (selectedItem != null) {
-                if (!selectedNotepaperLoot.getItems().contains(selectedItem)) {
-                    selectedNotepaperLoot.getItems().add(selectedItem);
-                }
-            }
+            String lootInput = lootName.getText();
+            addToList(lootInput, pickupLoot.getItems());
+            addToList(lootInput, magicNotepaperLoot.getItems());
         });
 
-        // Disable fields with requirements
-        tagSlider.setDisable(true);
-        revolutionMode.setDisable(true);
-        lootValue.setDisable(true);
+        removeLoot.setOnAction(event -> {
+            removeFromList(pickupLoot.getSelectionModel().getSelectedItems(), pickupLoot.getItems());
+        });
 
-        addLoot.setOnAction(this::lootChange);
-        removeLoot.setOnAction(this::lootChange);
-        addCharms.setOnAction(this::lootChange);
+        btnRemoveAlchemyLoot.setOnAction(event -> {
+            removeFromList(alchemyLoot.getSelectionModel().getSelectedItems(), alchemyLoot.getItems());
+        });
+
+        btnRemoveNotepaperLoot.setOnAction(event -> {
+            removeFromList(magicNotepaperLoot.getSelectionModel().getSelectedItems(), magicNotepaperLoot.getItems());
+        });
+
+
         soulsplit.setOnAction(this::togglePrayer);
         quickPray.setOnAction(this::togglePrayer);
         btnStart.setOnAction(this::start);
@@ -304,6 +274,18 @@ public class Controller {
         }
         boostRefreshPercentage.setValue(50);
 
+    }
+
+    private void addToList(String input, ObservableList<String> target) {
+        if (input != null && !input.isEmpty() && !target.contains(input)) {
+            target.add(input);
+        }
+    }
+
+    private void removeFromList(ObservableList<String> input, ObservableList<String> target) {
+        if (input != null && !input.isEmpty()) {
+            input.forEach(target::remove);
+        }
     }
 
 
@@ -327,7 +309,7 @@ public class Controller {
     }
 
     private boolean run() {
-        if (!selectedMonsters.getItems().isEmpty() && isNumeric(tileRange.getText()) && isNumeric(prayValue.getText()) && isNumeric(criticalHitpoints.getText())) {
+        if (!selectedMonsters.getItems().isEmpty() && isNumeric(tileRange.getText()) && isNumeric(criticalHitpoints.getText())) {
             // Create a settings object and store the settings
             if (!foodSelection.getItems().isEmpty()) {
                 List<String> foodNames = foodSelection.getItems().stream().map(String::toLowerCase).collect(Collectors.toList());
@@ -335,7 +317,7 @@ public class Controller {
                 Settings.eatValue = (int) eatValue.getValue();
             }
             if (quickPray.isSelected() || soulsplit.isSelected()) {
-                Settings.prayValue = Integer.valueOf(prayValue.getText());
+                Settings.prayValue = (int) prayValue.getValue();
             }
             if (tagMode.isSelected()) {
                 Settings.tagMode = true;
@@ -346,77 +328,48 @@ public class Controller {
             Settings.showOutline = showOutline.isSelected();
             Settings.targetSelection = (int) targetSlider.getValue();
             Settings.lootInCombat = lootInCombat.isSelected();
-            Settings.useAbilities = abilities.isSelected();
+            Settings.useAbilities = abilitiesMode.getSelectionModel().getSelectedIndex() != 0;
             Settings.fightRadius = Integer.valueOf(tileRange.getText());
             Settings.fightArea = new Area.Circular(Players.getLocal().getPosition(), Settings.fightRadius);
-            Settings.revolutionMode = revolutionMode.isSelected();
+            Settings.revolutionMode = abilitiesMode.getSelectionModel().getSelectedIndex() == 2;
             Settings.soulsplitPermanent = soulsplitPerm.isSelected();
             Settings.soulsplitPercentage = (int) soulsplitPercentage.getValue();
             Settings.quickPray = quickPray.isSelected();
             Settings.useSoulsplit = soulsplit.isSelected();
-            Settings.exitOnPrayerOut = exitPrayer.isSelected();
             Settings.criticalHitpoints = Integer.valueOf(criticalHitpoints.getText());
-            Settings.exitOutFood = stopWhenOutOfFood.isSelected();
             Settings.buryBones = buryBones.isSelected();
             Settings.equipAmmunition = reequipAmmunition.isSelected();
-            Settings.safetyLogout = safetyLogout.isSelected();
-            Settings.safetyTeleport = safetyTeleport.isSelected();
-            if (!listFamiliars.getSelectionModel().getSelectedItems().isEmpty()) {
-                Settings.useSummoning = true;
-                Settings.chosenFamiliar = listFamiliars.getSelectionModel().getSelectedItem();
-            }
+            Settings.foodLogout = logoutFood.isSelected();
+            Settings.foodTeleport = teleportFood.isSelected();
+            Settings.healthLogout = logoutHitpoints.isSelected();
+            Settings.healthTeleport = teleportHitpoints.isSelected();
             if (!selectedBoosts.getItems().isEmpty()) {
                 Settings.selectedPotions = selectedBoosts.getItems().toArray(new String[(selectedBoosts.getItems().size())]);
                 Settings.boostRefreshPercentage = boostRefreshPercentage.getValue();
             }
-            if (!selectedLoot.getItems().isEmpty()) {
+            if (!pickupLoot.getItems().isEmpty()) {
                 List<String> lootNames = new ArrayList<>();
-                lootNames.addAll(selectedLoot.getItems().stream().map(String::toLowerCase).collect(Collectors.toList()));
+                lootNames.addAll(pickupLoot.getItems().stream().map(String::toLowerCase).collect(Collectors.toList()));
                 Settings.lootNames = lootNames.toArray(new String[lootNames.size()]);
             }
             if (lootByValue.isSelected() && isNumeric(lootValue.getText())) {
                 Settings.lootByValue = true;
                 Settings.lootValue = Double.valueOf(lootValue.getText());
             }
-            if (!selectedAlchLoot.getItems().isEmpty()) {
+            if (!alchemyLoot.getItems().isEmpty()) {
                 List<String> alchLoot = new ArrayList<>();
-                alchLoot.addAll(selectedAlchLoot.getItems().stream().map(String::toLowerCase).collect(Collectors.toList()));
+                alchLoot.addAll(alchemyLoot.getItems().stream().map(String::toLowerCase).collect(Collectors.toList()));
                 Settings.alchLoot = alchLoot.toArray(new String[alchLoot.size()]);
             }
-            if (!selectedNotepaperLoot.getItems().isEmpty()) {
+            if (!magicNotepaperLoot.getItems().isEmpty()) {
                 List<String> notepaperLoot = new ArrayList<>();
-                notepaperLoot.addAll(selectedNotepaperLoot.getItems().stream().map(String::toLowerCase).collect(Collectors.toList()));
+                notepaperLoot.addAll(magicNotepaperLoot.getItems().stream().map(String::toLowerCase).collect(Collectors.toList()));
                 Settings.notepaperLoot = notepaperLoot.toArray(new String[notepaperLoot.size()]);
             }
             Settings.npcNames = selectedMonsters.getItems().toArray(new String[(selectedMonsters.getItems().size())]);
             return true;
         }
         return false;
-    }
-
-
-    private void lootChange(ActionEvent actionEvent) {
-        if (actionEvent.getSource().equals(addLoot)) {
-            String itemName = lootName.getText();
-            if (!itemName.isEmpty() && !selectedLoot.getItems().contains(itemName)) {
-                selectedLoot.getItems().add(itemName);
-            }
-        } else if (actionEvent.getSource().equals(removeLoot)) {
-            if (!selectedLoot.getSelectionModel().getSelectedItems().isEmpty()) {
-                selectedLoot.getItems().removeAll(selectedLoot.getSelectionModel().getSelectedItems());
-            } else if (!selectedAlchLoot.getSelectionModel().getSelectedItems().isEmpty()) {
-                selectedAlchLoot.getItems().removeAll(selectedAlchLoot.getSelectionModel().getSelectedItems());
-            } else if (!selectedNotepaperLoot.getSelectionModel().getSelectedItems().isEmpty()) {
-                selectedNotepaperLoot.getItems().removeAll(selectedNotepaperLoot.getSelectionModel().getSelectedItems());
-            }
-        } else if (actionEvent.getSource().equals(addCharms)) {
-            String[] charms = {"Crimson charm", "Gold charm", "Blue charm", "Green charm", "Elder charm"};
-            for (String s : charms) {
-                if (!selectedLoot.getItems().contains(s)) {
-                    selectedLoot.getItems().add(s);
-                }
-            }
-        }
     }
 
     private boolean load() {
@@ -431,35 +384,34 @@ public class Controller {
                     selectedMonsters.getItems().addAll(npcNames);
                     //
                     String[] lootNames = managedProperties.getProperty("lootNames").split(",");
-                    selectedLoot.getItems().clear();
-                    selectedLoot.getItems().addAll(lootNames);
+                    pickupLoot.getItems().clear();
+                    pickupLoot.getItems().addAll(lootNames);
                     //
                     String[] alchLootNames = managedProperties.getProperty("alchLoot").split(",");
-                    selectedAlchLoot.getItems().clear();
-                    selectedAlchLoot.getItems().addAll(alchLootNames);
+                    alchemyLoot.getItems().clear();
+                    alchemyLoot.getItems().addAll(alchLootNames);
                     //
                     String[] notepaperLootNames = managedProperties.getProperty("notepaperLoot").split(",");
-                    selectedNotepaperLoot.getItems().clear();
-                    selectedNotepaperLoot.getItems().addAll(notepaperLootNames);
+                    magicNotepaperLoot.getItems().clear();
+                    magicNotepaperLoot.getItems().addAll(notepaperLootNames);
 
                     String targetSelectionString = managedProperties.getProperty("targetSelection");
                     if (isNumeric(targetSelectionString)) {
                         targetSlider.setValue(Integer.valueOf(targetSelectionString));
                     }
                     showOutline.setSelected(Boolean.valueOf(managedProperties.getProperty("showOutline")));
-                    stopWhenOutOfFood.setSelected(Boolean.valueOf(managedProperties.getProperty("exitOutFood")));
-                    safetyLogout.setSelected(Boolean.valueOf(managedProperties.getProperty("safetyLogout")));
-                    safetyTeleport.setSelected(Boolean.valueOf(managedProperties.getProperty("safetyTeleport")));
+                    logoutFood.setSelected(Boolean.valueOf(managedProperties.getProperty("foodLogout")));
+                    teleportFood.setSelected(Boolean.valueOf(managedProperties.getProperty("foodTeleport")));
+                    logoutHitpoints.setSelected(Boolean.valueOf(managedProperties.getProperty("hitpointsLogout")));
+                    teleportHitpoints.setSelected(Boolean.valueOf(managedProperties.getProperty("hitpointsTeleport")));
                     lootInCombat.setSelected(Boolean.valueOf(managedProperties.getProperty("lootInCombat")));
-                    abilities.setSelected(Boolean.valueOf(managedProperties.getProperty("useAbilities")));
+                    abilitiesMode.getSelectionModel().select(Integer.valueOf(managedProperties.getProperty("abilityMode")));
                     soulsplit.setSelected(Boolean.valueOf(managedProperties.getProperty("useSoulsplit")));
                     buryBones.setSelected(Boolean.valueOf(managedProperties.getProperty("buryBones")));
                     quickPray.setSelected(Boolean.valueOf(managedProperties.getProperty("quickPray")));
-                    exitPrayer.setSelected(Boolean.valueOf(managedProperties.getProperty("exitOnPrayerOut")));
                     tagMode.setSelected(Boolean.valueOf(managedProperties.getProperty("tagMode")));
                     attackCombatMonsters.setSelected(Boolean.valueOf(managedProperties.getProperty("attackCombatMonsters")));
                     bypassReachable.setSelected(Boolean.valueOf(managedProperties.getProperty("bypassReachable")));
-                    revolutionMode.setSelected(Boolean.valueOf(managedProperties.getProperty("revolutionMode")));
                     lootByValue.setSelected(Boolean.valueOf(managedProperties.getProperty("lootByValue")));
                     reequipAmmunition.setSelected(Boolean.valueOf(managedProperties.getProperty("equipAmmunition")));
                     soulsplitPerm.setSelected(Boolean.valueOf(managedProperties.getProperty("soulsplitPermanent")));
@@ -495,7 +447,7 @@ public class Controller {
                     //
                     String prayValueString = managedProperties.getProperty("prayValue");
                     if (isNumeric(prayValueString)) {
-                        prayValue.setText(prayValueString);
+                        prayValue.setValue(Double.valueOf(prayValueString));
                     }
                     //
                     String criticalHitpointsString = managedProperties.getProperty("criticalHitpoints");
@@ -511,9 +463,8 @@ public class Controller {
                     if (isNumeric(boostRefreshPercentageString)) {
                         boostRefreshPercentage.setValue(Integer.valueOf(boostRefreshPercentageString));
                     }
+                    ClientUI.sendTrayNotification("MassFighter Settings Downloaded", TrayIcon.MessageType.INFO);
                     return true;
-                } else {
-                    settingsStatus.setText("Your cloud settings are invalid, please re-save them");
                 }
             }
         }
@@ -532,28 +483,29 @@ public class Controller {
                     String npcString = String.join(",", selectedMonsters.getItems());
                     managedProperties.setProperty("npcNames", npcString);
                     //
-                    String lootString = String.join(",", selectedLoot.getItems());
+                    String lootString = String.join(",", pickupLoot.getItems());
                     managedProperties.setProperty("lootNames", lootString);
                     //
-                    String alchLootString = String.join(",", selectedAlchLoot.getItems());
+                    String alchLootString = String.join(",", alchemyLoot.getItems());
                     managedProperties.setProperty("alchLoot", alchLootString);
                     //
-                    String notepaperLootString = String.join(",", selectedNotepaperLoot.getItems());
+                    String notepaperLootString = String.join(",", magicNotepaperLoot.getItems());
                     managedProperties.setProperty("notepaperLoot", notepaperLootString);
                     managedProperties.setProperty("targetSelection", Double.toString(targetSlider.getValue()));
                     managedProperties.setProperty("useFood", Boolean.toString(!foodSelection.getItems().isEmpty()));
                     managedProperties.setProperty("showOutline", Boolean.toString(showOutline.isSelected()));
                     managedProperties.setProperty("lootInCombat", Boolean.toString(lootInCombat.isSelected()));
-                    managedProperties.setProperty("useAbilities", Boolean.toString(abilities.isSelected()));
+                    managedProperties.setProperty("abilityMode", Integer.toString(abilitiesMode.getSelectionModel().getSelectedIndex()));
                     managedProperties.setProperty("useSoulsplit", Boolean.toString(soulsplit.isSelected()));
-                    managedProperties.setProperty("safetyLogout", Boolean.toString(safetyLogout.isSelected()));
-                    managedProperties.setProperty("safetyTeleport", Boolean.toString(safetyTeleport.isSelected()));
+                    managedProperties.setProperty("foodLogout", Boolean.toString(logoutFood.isSelected()));
+                    managedProperties.setProperty("foodTeleport", Boolean.toString(teleportFood.isSelected()));
+                    managedProperties.setProperty("hitpointsLogout", Boolean.toString(logoutHitpoints.isSelected()));
+                    managedProperties.setProperty("hitpointsTeleport", Boolean.toString(teleportHitpoints.isSelected()));
                     managedProperties.setProperty("buryBones", Boolean.toString(buryBones.isSelected()));
                     managedProperties.setProperty("quickPray", Boolean.toString(quickPray.isSelected()));
                     managedProperties.setProperty("tagMode", Boolean.toString(tagMode.isSelected()));
                     managedProperties.setProperty("attackCombatMonsters", Boolean.toString(attackCombatMonsters.isSelected()));
                     managedProperties.setProperty("bypassReachable", Boolean.toString(bypassReachable.isSelected()));
-                    managedProperties.setProperty("revolutionMode", Boolean.toString(revolutionMode.isSelected()));
                     managedProperties.setProperty("lootByValue", Boolean.toString(lootByValue.isSelected()));
                     managedProperties.setProperty("equipAmmunition", Boolean.toString(reequipAmmunition.isSelected()));
                     managedProperties.setProperty("soulsplitPermanent", Boolean.toString(soulsplitPerm.isSelected()));
@@ -573,7 +525,7 @@ public class Controller {
                     managedProperties.setProperty("selectedPotions", potionString);
                     //
                     managedProperties.setProperty("boostRefreshPercentage", Double.toString(boostRefreshPercentage.getValue()));
-                    settingsStatus.setText("Settings saved!");
+                    ClientUI.sendTrayNotification("MassFighter Settings Saved", TrayIcon.MessageType.INFO);
                     return true;
                 }
             }

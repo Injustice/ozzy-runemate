@@ -38,10 +38,6 @@ public class PrayerPoints extends Task {
         out("PrayerPoints: Need to top up prayer points, current = " + Methods.getPrayPoints() + " target = " + Settings.prayValue);
         if (validPrayerItems.results().isEmpty()) {
             out("PrayerPoints: We have no prayer pots");
-            if (Settings.exitOnPrayerOut) {
-                out("PrayerPoints: Out of pots, logging out");
-                Methods.logout();
-            } else {
                 out("PrayerPoints: Turning off script prayer usage");
                 Settings.useSoulsplit = false;
                 Settings.quickPray = false;
@@ -51,7 +47,6 @@ public class PrayerPoints extends Task {
                     System.out.println("PrayerPoints: Successfully removed pray task");
                     rootScript.remove(task);
                 });
-            }
         } else if (Methods.getPrayPoints() != -1) {
             out("PrayerPoints: We have pots, getting prayer points");
             final int startPP = Methods.getPrayPoints();

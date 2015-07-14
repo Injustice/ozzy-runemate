@@ -5,8 +5,6 @@ import com.runemate.game.api.hybrid.Environment;
 import com.runemate.game.api.hybrid.entities.LocatableEntity;
 import com.runemate.game.api.hybrid.entities.definitions.ItemDefinition;
 import com.runemate.game.api.hybrid.local.Skill;
-import com.runemate.game.api.hybrid.location.Area;
-import com.runemate.game.api.hybrid.location.Coordinate;
 import com.runemate.game.api.hybrid.util.StopWatch;
 import com.runemate.game.api.hybrid.util.calculations.CommonMath;
 import com.runemate.game.api.osrs.net.Zybez;
@@ -70,7 +68,7 @@ public class MassFighter extends TaskScript implements PaintListener, MouseListe
             methods = new Methods();
 
             // Top priority task, not shuffled
-            add(new SafetyTeleport());
+            add(new Safety());
 
             // Low-priority tasks to be shuffled
             List<Task> tasks = new ArrayList<>();
